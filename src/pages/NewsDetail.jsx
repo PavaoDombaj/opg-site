@@ -1,103 +1,142 @@
-// pages/NewsDetail.jsx
-import React, { useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import { useState, useEffect } from "react"
+import { Link, useParams } from "react-router-dom"
+import sanityClient from "../../sanityClient"
+import BlockContent from "@sanity/block-content-to-react"
+import imageUrlBuilder from '@sanity/image-url'
 
-// test - mora bit api za pisanje i fetchanje bloga
-const getNewsItemById = (id) => {
- 
-  const newsItems = [
-    {
-      id: 1,
-      image: "/images/news/seasonal-harvest.jpg",
-      title: "Sezonska berba započela",
-      date: "20. travnja 2025.",
-      content: `
-        <p>Ove godine nas očekuje bogata berba organskog povrća i voća. Saznajte što je prvo spremno za vaš stol i kako naručiti svježe proizvode direktno s našeg OPG-a.</p>
-        <p>S dolaskom proljeća, naši prvi sezonski proizvodi su spremni za berbu. Posebno smo ponosni na rani grašak, mladi luk i baby špinat koji su već dostupni za narudžbu.</p>
-        <h3>Što trenutno beremo:</h3>
-        <ul>
-          <li>Mladi grašak</li>
-          <li>Proljetni luk</li>
-          <li>Baby špinat</li>
-          <li>Rane salate</li>
-          <li>Rotkvice</li>
-        </ul>
-        <p>Uskoro očekujemo i prve jagode, koje će biti spremne za početak svibnja, ovisno o vremenskim uvjetima.</p>
-        <p>Sve naše proizvode možete naručiti putem web stranice ili nas posjetiti na tržnici subotom.</p>
-      `
-    },
-    // Ostali news itemi...
-  ];
-  
-  return newsItems.find(item => item.id === parseInt(id));
-};
+const builder = imageUrlBuilder({
+  projectId: 'd1ae6ngj',
+  dataset: 'production'
+})
 
-const NewsDetail = () => {
-  const { id } = useParams();
-  const newsItem = getNewsItemById(id);
-  
+function urlFor(source) {
+  return builder.image(source)
+}
+
+const serializers = {
+  types: {
+    image: ({node}) => (
+      <img 
+        src={urlFor(node.asset).url()} 
+        alt={node.alt || ' '}
+        className="w-full my-4"
+      />
+    )
+  }
+}
+
+export default function NewsDetail() {
+  const [singlePost, setSinglePost] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const { slug } = useParams()
+
+  console.log("Current slug:", slug)
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    console.log("Fetching data for slug:", slug)
+    sanityClient
+      .fetch(
+        `*[slug.current == "${slug}"] {
+        title,
+        body,
+        mainImage {
+          asset -> {
+            _id,
+            url
+          },
+          alt
+        },
+        author,
+        publishedAt
+      }`
+      )
+      .then((data) => {
+        console.log("Raw data from Sanity:", data)
+        if (data && data.length > 0) {
+          console.log("Post body structure:", data[0].body)
+          setSinglePost(data[0])
+        } else {
+          console.log("No post found for slug:", slug)
+        }
+        setIsLoading(false)
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error)
+        setIsLoading(false)
+      })
+  }, [slug])
 
-  if (!newsItem) {
+  console.log("Current post state:", singlePost)
+  if (singlePost && singlePost.body) {
+    console.log("Body structure before render:", singlePost.body)
+  }
+
+  if (isLoading) {
     return (
-      <>
-        <Navbar />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h2 className="text-2xl font-playfair text-forest">Vijest nije pronađena</h2>
-          <Link to="/" className="inline-block mt-4 text-leaf hover:text-forest transition-colors">
-            Natrag na početnu
-          </Link>
-        </div>
-      </>
-    );
+      <h1 className="uppercase font-bold text-4xl tracking-wide mb-5 md:text-6xl lg:text-8xl flex items-center justify-center h-screen">
+        Loading...
+      </h1>
+    )
+  }
+
+  if (!singlePost) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-2xl mb-4">Post nije pronađen</h2>
+        <Link
+          to="/blog"
+          className="py-2 px-6 rounded shadow text-white bg-black hover:bg-transparent border-2 border-black transition-all duration-500 hover:text-black font-bold"
+        >
+          Povratak na blog
+        </Link>
+      </div>
+    )
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="bg-cream pt-20 pb-16">
-        <div className="container mx-auto px-4 max-w-4xl animate-fade-in">
-          {/* Header slika */}
-          <div className="relative h-[40vh] md:h-[50vh] mb-8 rounded-lg overflow-hidden shadow-lg">
-            <img 
-              src={newsItem.image} 
-              alt={newsItem.title} 
-              className="w-full h-full object-cover" 
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-30 flex items-end">
-              <div className="p-6 md:p-8">
-                <p className="text-cream text-sm mb-2">{newsItem.date}</p>
-                <h1 className="text-3xl md:text-4xl font-playfair text-cream">{newsItem.title}</h1>
-              </div>
-            </div>
-          </div>
-          
-          {/* Sadržaj vijesti */}
-          <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-            <div 
-              className="news-content font-opensans text-forest leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: newsItem.content }}
-            />
-            
-            <div className="mt-8 pt-6 border-t border-leaf border-opacity-20">
-              <Link 
-                to="/#news" 
-                className="inline-flex items-center text-forest hover:text-leaf transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Natrag na sve novosti
-              </Link>
-            </div>
-          </div>
+    <section className="px-5 xl:max-w-4xl xl:mx-auto pb-20 pt-24">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 text-center">
+          {singlePost.title}
+        </h1>
+        
+        <div className="flex items-center justify-center gap-2 text-gray-600 mb-8">
+          <span>OPG Dombaj</span>
+          <span>•</span>
+          <span>{singlePost.publishedAt ? new Date(singlePost.publishedAt).toLocaleDateString('hr-HR', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          }) : new Date().toLocaleDateString('hr-HR')}</span>
+        </div>
+
+        {singlePost.mainImage && singlePost.mainImage.asset && (
+          <img
+            src={singlePost.mainImage.asset.url}
+            alt={singlePost.title}
+            title={singlePost.title}
+            className="w-full h-[400px] object-cover rounded-lg shadow-lg mb-10"
+          />
+        )}
+
+        <div className="block__content mt-8 prose prose-lg max-w-none">
+          <BlockContent
+            blocks={singlePost.body}
+            projectId="d1ae6ngj"
+            dataset="production"
+            serializers={serializers}
+          />
+        </div>
+
+        <div className="mt-16 text-center">
+          <Link
+            to="/#news"
+            className="inline-block py-3 px-8 rounded-lg shadow text-white bg-black hover:bg-transparent border-2 border-black transition-all duration-500 hover:text-black font-bold"
+          >
+            Povratak na blog
+          </Link>
         </div>
       </div>
-    </>
-  );
-};
-
-export default NewsDetail;
+    </section>
+  )
+}

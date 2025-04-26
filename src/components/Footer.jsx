@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="flex items-center gap-2">
             <span className="text-sm">Web izradio</span>
             <a
-              href="https://www.linkedin.com/in/pavao-dombaj-2b55302b5/"
+              href="https://pavaodombaj.netlify.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center hover:text-leaf transition"
