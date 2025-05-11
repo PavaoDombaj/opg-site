@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { sanityClient } from "../../sanityClient";
-import { urlFor } from "../../imageUrlBuilder"; 
+import { urlFor } from "../../imageUrlBuilder";
 import NewsCard from "./NewsCard";
 import { motion } from "framer-motion";
 
@@ -80,5 +80,5 @@ const NewsSection = () => {
     </section>
   );
 };
-  
+
 export default NewsSection;
