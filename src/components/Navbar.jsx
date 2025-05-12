@@ -4,10 +4,18 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const [scrolled, setScrolled] = useState(false);
 
   // Function to determine which section is currently in view
   useEffect(() => {
     const handleScroll = () => {
+      // Check if page is scrolled for navbar styling
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+
       // Get all sections
       const sections = ["home", "about", "news", "contact"];
 
@@ -63,16 +71,30 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-forest text-cream w-full fixed top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/">
-          <h1 className="text-xl font-playfair animate-fade-in">OPG Dombaj</h1>
+    <nav
+      className={`w-full fixed top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-forest shadow-lg py-2"
+          : "bg-forest/80 backdrop-blur-md py-4"
+      }`}
+    >
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <Link to="/" className="flex items-center">
+          <div className="w-10 h-10 rounded-full bg-wheat flex items-center justify-center mr-3">
+            <span className="text-forest font-playfair font-bold text-lg">
+              OD
+            </span>
+          </div>
+          <h1 className="text-xl font-playfair text-cream animate-fade-in">
+            OPG Dombaj
+          </h1>
         </Link>
 
         {/* Mobilni menu button */}
         <button
           className="md:hidden focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Zatvori izbornik" : "Otvori izbornik"}
         >
           <svg
             className="w-6 h-6 text-cream"
@@ -99,97 +121,60 @@ const Navbar = () => {
         </button>
 
         {/* Desktop menu */}
-        <ul className="hidden md:flex space-x-6 animate-fade-in">
-          <li>
-            <a
-              onClick={() => scrollToSection("home")}
-              className={`cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                activeSection === "home" ? "text-leaf font-bold" : ""
-              }`}
-            >
-              NASLOVNICA
-            </a>
-          </li>
-          <li>
-            <a
-              onClick={() => scrollToSection("about")}
-              className={`cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                activeSection === "about" ? "text-leaf font-bold" : ""
-              }`}
-            >
-              O NAMA
-            </a>
-          </li>
-          <li>
-            <a
-              onClick={() => scrollToSection("news")}
-              className={`cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                activeSection === "news" ? "text-leaf font-bold" : ""
-              }`}
-            >
-              NOVOSTI
-            </a>
-          </li>
-          <li>
-            <a
-              onClick={() => scrollToSection("contact")}
-              className={`cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                activeSection === "contact" ? "text-leaf font-bold" : ""
-              }`}
-            >
-              KONTAKT
-            </a>
-          </li>
+        <ul className="hidden md:flex space-x-8 animate-fade-in">
+          {[
+            { id: "home", label: "NASLOVNICA" },
+            { id: "about", label: "O NAMA" },
+            { id: "news", label: "NOVOSTI" },
+            { id: "contact", label: "KONTAKT" },
+          ].map((item) => (
+            <li key={item.id}>
+              <a
+                onClick={() => scrollToSection(item.id)}
+                className={`cursor-pointer hover:text-leaf transition-colors duration-300 relative ${
+                  activeSection === item.id
+                    ? "text-wheat font-bold"
+                    : "text-cream"
+                }`}
+              >
+                {item.label}
+                {activeSection === item.id && (
+                  <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-wheat rounded-full"></span>
+                )}
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
 
       {/* Mobilni menu */}
-      {isOpen && (
-        <div className="md:hidden">
-          <ul className="flex flex-col px-4 pt-2 pb-4 space-y-2 bg-forest">
-            <li>
+      <div
+        className={`md:hidden transition-all duration-300 overflow-hidden ${
+          isOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <ul className="flex flex-col px-4 pt-2 pb-4 space-y-4 bg-forest">
+          {[
+            { id: "home", label: "NASLOVNICA" },
+            { id: "about", label: "O NAMA" },
+            { id: "news", label: "NOVOSTI" },
+            { id: "contact", label: "KONTAKT" },
+          ].map((item) => (
+            <li key={item.id}>
               <a
-                onClick={() => scrollToSection("home")}
-                className={`block py-2 cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                  activeSection === "home" ? "text-leaf font-bold" : ""
+                onClick={() => scrollToSection(item.id)}
+                className={`block py-2 cursor-pointer transition-colors duration-300 ${
+                  activeSection === item.id
+                    ? "text-wheat font-bold border-l-4 border-wheat pl-3"
+                    : "text-cream pl-4"
                 }`}
               >
-                NASLOVNICA
+                {item.label}
               </a>
             </li>
-            <li>
-              <a
-                onClick={() => scrollToSection("about")}
-                className={`block py-2 cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                  activeSection === "about" ? "text-leaf font-bold" : ""
-                }`}
-              >
-                O NAMA
-              </a>
-            </li>
-            <li>
-              <a
-                onClick={() => scrollToSection("news")}
-                className={`block py-2 cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                  activeSection === "news" ? "text-leaf font-bold" : ""
-                }`}
-              >
-                NOVOSTI
-              </a>
-            </li>
-            <li>
-              <a
-                onClick={() => scrollToSection("contact")}
-                className={`block py-2 cursor-pointer hover:text-leaf transition-colors duration-300 ${
-                  activeSection === "contact" ? "text-leaf font-bold" : ""
-                }`}
-              >
-                KONTAKT
-              </a>
-            </li>
-          </ul>
-        </div>
-      )}
+          ))}
+        </ul>
+      </div>
     </nav>
   );
 };

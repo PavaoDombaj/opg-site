@@ -7,10 +7,12 @@ import { motion } from "framer-motion";
 const NewsSection = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     sanityClient
-      .fetch(`*[_type == "post"] | order(publishedAt desc) {
+      .fetch(
+        `*[_type == "post"] | order(publishedAt desc) {
         _id,
         title,
         body,
@@ -23,15 +25,16 @@ const NewsSection = () => {
           },
           alt
         }
-      }`)
+      }`
+      )
       .then((data) => {
-        const formattedPosts = data.map(post => {
+        const formattedPosts = data.map((post) => {
           // Extract first sentence from body
-          let firstSentence = '';
+          let firstSentence = "";
           if (post.body && post.body[0] && post.body[0].children) {
             const firstBlock = post.body[0].children[0];
             if (firstBlock && firstBlock.text) {
-              firstSentence = firstBlock.text.split('.')[0] + '...';
+              firstSentence = firstBlock.text.split(".")[0] + "...";
             }
           }
 
@@ -39,9 +42,10 @@ const NewsSection = () => {
             id: post._id,
             title: post.title,
             excerpt: firstSentence,
-            image: post.mainImage?.asset?.url || "https://picsum.photos/400/250",
+            image:
+              post.mainImage?.asset?.url || "https://picsum.photos/400/250",
             date: post.publishedAt,
-            slug: post.slug
+            slug: post.slug,
           };
         });
         setPosts(formattedPosts);
@@ -50,32 +54,72 @@ const NewsSection = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-center py-10">Učitavanje...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center py-20 bg-cream">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-forest"></div>
+      </div>
+    );
 
   return (
-    <section id="news" className="py-16 bg-cream mt-5">
+    <section id="news" className="py-20 bg-cream">
       <div className="container mx-auto px-4">
-        <motion.h2
-          className="text-4xl font-playfair text-forest mb-10 text-center"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          Novosti
-        </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post, i) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.7, delay: i * 0.1 }}
-            >
-              <NewsCard {...post} />
-            </motion.div>
-          ))}
+        <div className="relative mb-16">
+          <div className="absolute left-0 right-0 h-0.5 bg-forest/20 top-1/2 -translate-y-1/2"></div>
+          <motion.h2
+            className="text-4xl font-playfair text-forest relative z-10 bg-cream inline-block px-6 mx-auto"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            style={{
+              display: "table",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Novosti s našeg gospodarstva
+          </motion.h2>
         </div>
+
+        {posts.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post, i) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.7, delay: i * 0.1 }}
+                >
+                  <NewsCard {...post} />
+                </motion.div>
+              ))}
+            </div>
+
+            {posts.length > 3 && (
+              <motion.div
+                className="text-center mt-12"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <a
+                  href="#"
+                  className="inline-block px-8 py-3 bg-forest text-cream rounded-lg hover:bg-leaf transition-colors duration-300 font-bold"
+                >
+                  Pogledaj sve novosti
+                </a>
+              </motion.div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-10 bg-wheat/30 rounded-lg">
+            <p className="text-forest text-lg">
+              Trenutno nema dostupnih novosti.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
