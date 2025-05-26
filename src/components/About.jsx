@@ -1,12 +1,50 @@
+import { useEffect } from 'react';
+
 const About = () => {
+  // Add structured data for SEO
+  useEffect(() => {
+    // Create JSON-LD structured data for LocalBusiness
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "OPG Dombaj",
+      "image": "/images/pozadina.jpg",
+      "description": "OPG Dombaj iz Drnja nudi svježe domaće poljoprivredne proizvode. Obitelj Dombaj i Sunčica Dombaj proizvode kvalitetne domaće proizvode direktno s polja na vaš stol.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Ločka ulica 9",
+        "addressLocality": "Drnje",
+        "postalCode": "48322",
+        "addressCountry": "HR"
+      },
+      "telephone": "+385 99 757 3923",
+      "email": "pavaodombaj@gmail.com",
+      "url": "https://www.opgdombaj.hr",
+      "priceRange": "$$",
+      "openingHours": "Mo-Sa 08:00-18:00",
+      "keywords": "OPG Dombaj, Dombaj, Sunčica Dombaj, OPG Drnje, domaći proizvodi, poljoprivreda"
+    };
+
+    // Add the structured data to the page
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+
+    return () => {
+      // Clean up
+      document.head.removeChild(script);
+    };
+  }, []);
+
   return (
-    <section id="about" className="bg-cream pt-16">
+    <section id="about" className="bg-cream pt-16" aria-label="O OPG Dombaj">
       <div className="hidden md:flex w-full h-screen">
   {/* Lijeva kolona */}
   <div className="flex flex-col w-1/2 h-full">
     <img
       src="/images/onama1.jpg"
-      alt="Staklenik"
+      alt="OPG Dombaj staklenik u Drnju - uzgoj domaćeg povrća"
       className="w-full flex-[2] object-cover h-0 min-h-0 animate-fade-in"
     />
     <div className="w-full bg-forest flex items-center justify-center flex-1 animate-slide-in-up">
@@ -16,7 +54,7 @@ const About = () => {
     </div>
     <img
       src="/images/pozadina.jpg"
-      alt="Radnik na farmi"
+      alt="Sunčica Dombaj i obitelj na OPG-u u Drnju - domaći uzgoj"
       className="w-full flex-[2] object-cover h-0 min-h-0 animate-fade-in-delay"
     />
   </div>
@@ -54,7 +92,7 @@ const About = () => {
       <div className="flex flex-col md:hidden w-full">
         <img
           src="/images/onama1.jpg"
-          alt="Staklenik"
+          alt="OPG Dombaj staklenik u Drnju - uzgoj domaćeg povrća"
           className="w-full h-48 object-cover"
         />
         <div className="w-full bg-forest flex items-center justify-center py-4">

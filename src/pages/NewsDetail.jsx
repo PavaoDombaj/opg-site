@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useParams, useNavigate } from "react-router-dom"
 import sanityClient from "../../sanityClient"
 import BlockContent from "@sanity/block-content-to-react"
 import imageUrlBuilder from '@sanity/image-url'
+import { scrollToSection } from "../utils/scrollUtils"
+import Navbar from "../components/Navbar"
 
 const builder = imageUrlBuilder({
   projectId: 'd1ae6ngj',
@@ -29,6 +31,7 @@ export default function NewsDetail() {
   const [singlePost, setSinglePost] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const { slug } = useParams()
+  const navigate = useNavigate()
 
   console.log("Current slug:", slug)
 
@@ -73,29 +76,41 @@ export default function NewsDetail() {
 
   if (isLoading) {
     return (
-      <h1 className="uppercase font-bold text-4xl tracking-wide mb-5 md:text-6xl lg:text-8xl flex items-center justify-center h-screen">
-        Loading...
-      </h1>
+      <>
+        <Navbar />
+        <h1 className="uppercase font-bold text-4xl tracking-wide mb-5 md:text-6xl lg:text-8xl flex items-center justify-center h-screen">
+          Loading...
+        </h1>
+      </>
     )
   }
 
   if (!singlePost) {
     return (
-      <div className="text-center py-20">
-        <h2 className="text-2xl mb-4">Post nije pronađen</h2>
-        <Link
-          to="/blog"
-          className="py-2 px-6 rounded shadow text-white bg-black hover:bg-transparent border-2 border-black transition-all duration-500 hover:text-black font-bold"
-        >
-          Povratak na blog
-        </Link>
-      </div>
+      <>
+        <Navbar />
+        <div className="text-center py-20 mt-20">
+          <h2 className="text-2xl mb-4">Post nije pronađen</h2>
+          <button
+            onClick={() => {
+              // First navigate to homepage, then scroll to news section
+              sessionStorage.setItem('scrollToSection', 'news');
+              navigate('/');
+            }}
+            className="py-2 px-6 rounded shadow text-white bg-black hover:bg-transparent border-2 border-black transition-all duration-500 hover:text-black font-bold"
+          >
+            Povratak na blog
+          </button>
+        </div>
+      </>
     )
   }
 
   return (
-    <section className="px-5 xl:max-w-4xl xl:mx-auto pb-20 pt-24">
-      <div className="max-w-3xl mx-auto">
+    <>
+      <Navbar />
+      <section className="px-5 xl:max-w-4xl xl:mx-auto pb-20 pt-24">
+        <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 text-center">
           {singlePost.title}
         </h1>
@@ -129,14 +144,19 @@ export default function NewsDetail() {
         </div>
 
         <div className="mt-16 text-center">
-          <Link
-            to="/#news"
+          <button
+            onClick={() => {
+              // First navigate to homepage, then scroll to news section
+              sessionStorage.setItem('scrollToSection', 'news');
+              navigate('/');
+            }}
             className="inline-block py-3 px-8 rounded-lg shadow text-white bg-black hover:bg-transparent border-2 border-black transition-all duration-500 hover:text-black font-bold"
           >
             Povratak na blog
-          </Link>
+          </button>
         </div>
       </div>
     </section>
+    </>
   )
 }

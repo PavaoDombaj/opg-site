@@ -80,11 +80,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/" className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-wheat flex items-center justify-center mr-3">
-            <span className="text-forest font-playfair font-bold text-lg">
-              OD
-            </span>
-          </div>
+      
           <h1 className="text-xl font-playfair text-cream animate-fade-in">
             OPG Dombaj
           </h1>

@@ -3,6 +3,12 @@ export default {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      textShadow: {
+        sm: '0 1px 2px rgba(0, 0, 0, 0.5)',
+        md: '0 2px 4px rgba(0, 0, 0, 0.5)',
+        lg: '0 4px 8px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.5)',
+        xl: '0 6px 12px rgba(0, 0, 0, 0.7), 0 3px 6px rgba(0, 0, 0, 0.6)',
+      },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
@@ -24,7 +30,13 @@ export default {
         playfair: ["'Playfair Display'", "serif"],
         merriweather: ["'Merriweather'", "serif"],
         opensans: ["'Open Sans'", "sans-serif"],
-      },animation: {
+      },
+      transitionDuration: {
+        '1500': '1500ms',
+        '2000': '2000ms',
+        '3000': '3000ms',
+      },
+      animation: {
         'fade-in': 'fadeIn 1.2s ease-out forwards',
         'fade-in-delay': 'fadeIn 1.2s ease-out 0.6s forwards',
         "slide-in-left": "slideInLeft 1s ease-out",
@@ -53,5 +65,27 @@ export default {
       },
     },
   },
-  plugins: [ require('@tailwindcss/line-clamp'),],
+  plugins: [
+    require('@tailwindcss/line-clamp'),
+    function({ addUtilities, theme }) {
+      const newUtilities = {
+        '.text-shadow-sm': {
+          textShadow: theme('textShadow.sm'),
+        },
+        '.text-shadow-md': {
+          textShadow: theme('textShadow.md'),
+        },
+        '.text-shadow-lg': {
+          textShadow: theme('textShadow.lg'),
+        },
+        '.text-shadow-xl': {
+          textShadow: theme('textShadow.xl'),
+        },
+        '.text-shadow-none': {
+          textShadow: 'none',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 };

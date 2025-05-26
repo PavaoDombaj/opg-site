@@ -49,10 +49,57 @@ const NewsSection = () => {
           };
         });
         setPosts(formattedPosts);
+        
+        // Add structured data for blog posts
+        addBlogStructuredData(formattedPosts);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+  
+  // Function to add structured data for blog posts
+  const addBlogStructuredData = (posts) => {
+    // Create JSON-LD structured data for BlogPosting
+    const blogListingData = {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Blog OPG Dombaj",
+      "description": "Novosti i događanja s OPG Dombaj iz Drnja. Pratite Sunčicu Dombaj i obitelj kroz sezonu uzgoja.",
+      "url": "https://www.opgdombaj.hr/#news",
+      "blogPost": posts.map(post => ({
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.excerpt,
+        "image": post.image,
+        "datePublished": post.date,
+        "url": `https://www.opgdombaj.hr/blog/${post.slug}`,
+        "author": {
+          "@type": "Person",
+          "name": "OPG Dombaj"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "OPG Dombaj",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "/leaf.svg"
+          }
+        }
+      }))
+    };
+
+    // Add the structured data to the page
+    const existingScript = document.getElementById('blog-structured-data');
+    if (existingScript) {
+      document.head.removeChild(existingScript);
+    }
+    
+    const script = document.createElement('script');
+    script.id = 'blog-structured-data';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(blogListingData);
+    document.head.appendChild(script);
+  };
 
   if (loading)
     return (
@@ -62,7 +109,7 @@ const NewsSection = () => {
     );
 
   return (
-    <section id="news" className="py-20 bg-cream">
+    <section id="news" className="py-20 bg-cream" aria-label="Blog OPG Dombaj - Novosti iz Drnja">
       <div className="container mx-auto px-4">
         <div className="relative mb-16">
           <div className="absolute left-0 right-0 h-0.5 bg-forest/20 top-1/2 -translate-y-1/2"></div>
@@ -104,12 +151,20 @@ const NewsSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <a
-                  href="#"
+                <button
+                  onClick={() => {
+                    const newsSection = document.getElementById("news");
+                    if (newsSection) {
+                      window.scrollTo({
+                        top: newsSection.offsetTop,
+                        behavior: "smooth",
+                      });
+                    }
+                  }}
                   className="inline-block px-8 py-3 bg-forest text-cream rounded-lg hover:bg-leaf transition-colors duration-300 font-bold"
                 >
                   Pogledaj sve novosti
-                </a>
+                </button>
               </motion.div>
             )}
           </>

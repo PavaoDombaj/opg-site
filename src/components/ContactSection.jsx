@@ -1,7 +1,42 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ContactSection = () => {
+  // Add structured data for contact information
+  useEffect(() => {
+    // Create JSON-LD structured data for ContactPage
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Kontakt OPG Dombaj",
+      "description": "Kontaktirajte OPG Dombaj iz Drnja. Sunčica Dombaj i obitelj nude domaće poljoprivredne proizvode.",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "OPG Dombaj",
+        "telephone": "+385 99 757 3923",
+        "email": "pavaodombaj@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Ločka ulica 9",
+          "addressLocality": "Drnje",
+          "postalCode": "48322",
+          "addressCountry": "HR"
+        }
+      }
+    };
+
+    // Add the structured data to the page
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+
+    return () => {
+      // Clean up
+      document.head.removeChild(script);
+    };
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -73,7 +108,7 @@ const ContactSection = () => {
   };
 
   return (
-    <section id="contact" className="bg-gradient-to-b from-wheat to-cream py-20">
+    <section id="contact" className="bg-gradient-to-b from-wheat to-cream py-20" aria-label="Kontaktirajte OPG Dombaj - Sunčica Dombaj">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <div className="relative mb-16">
@@ -119,7 +154,7 @@ const ContactSection = () => {
                       </svg>
                       <div>
                         <p className="text-wheat font-bold">Telefon</p>
-                        <p>+385 99 123 4567</p>
+                        <p>+385 99 757 3923</p>
                       </div>
                     </div>
                     
@@ -130,7 +165,7 @@ const ContactSection = () => {
                       </svg>
                       <div>
                         <p className="text-wheat font-bold">Adresa</p>
-                        <p>Ulica Hrvatskih branitelja 123<br />10000 Zagreb, Hrvatska</p>
+                        <p>Ločka ulica 9<br />48322 Drnje, Hrvatska</p>
                       </div>
                     </div>
                   </div>
